@@ -1,12 +1,12 @@
 {
   "name": "@web-widget/vue-adapter",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "a web-widget plugin for vue.js applications",
   "source": "src/index.js",
-  "main": "dist/cjs/vue-adapter",
-  "module": "dist/esm/vue-adapter",
-  "system": "dist/system/vue-adapter",
-  "unpkg": "dist/umd/vue-adapter",
+  "main": "dist/cjs/vue-adapter.js",
+  "module": "dist/esm/vue-adapter.js",
+  "system": "dist/system/vue-adapter.js",
+  "unpkg": "dist/umd/vue-adapter.js",
   "libraryName": "WebWidgetVueAdapter",
 
   "publishConfig": {
