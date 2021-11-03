@@ -1,28 +1,31 @@
 {
-  "name": "single-spa-vue",
-  "version": "2.5.1",
-  "description": "a single-spa plugin for vue.js applications",
-  "main": "dist/umd/single-spa-vue.js",
-  "module": "dist/esm/single-spa-vue.js",
+  "name": "@web-widget/vue-adapter",
+  "version": "0.0.1",
+  "description": "a web-widget plugin for vue.js applications",
+  "source": "src/index.js",
+  "main": "dist/cjs/vue-adapter",
+  "module": "dist/esm/vue-adapter",
+  "system": "dist/system/vue-adapter",
+  "unpkg": "dist/umd/vue-adapter",
+  "libraryName": "WebWidgetVueAdapter",
+
+  "publishConfig": {
+    "access": "public"
+  },
   "exports": {
     ".": {
-      "import": "./dist/esm/single-spa-vue.js",
-      "require": "./dist/umd/single-spa-vue.js"
-    },
-    "./parcel": {
-      "import": "./dist/esm/parcel.js",
-      "require": "./dist/umd/parcel.js"
+      "import": "./dist/esm/vue-adapter.js",
+      "require": "./dist/umd/vue-adapter.js"
     }
   },
   "scripts": {
-    "prepublishOnly": "pnpm run build",
+    "prepublishOnly": "npm run build",
     "build": "rimraf dist && rollup -c",
     "build:watch": "rollup -cw",
-    "test": "concurrently -n w: 'pnpm:test:*'",
-    "test:jest": "cross-env BABEL_ENV=test jest",
-    "test:types": "tsd",
-    "format": "prettier --write .",
-    "check-format": "prettier --check .",
+    "test": "concurrently -n w: 'npm:test:*'",
+    "test:jest": "cross-env BABEL_ENV=test jest test/*.test.js",
+    "format": "prettier --write src",
+    "check-format": "prettier --check src",
     "lint": "eslint src"
   },
   "jest": {
@@ -32,39 +35,37 @@
   },
   "husky": {
     "hooks": {
-      "pre-commit": "pretty-quick --staged && concurrently -n pnpm:test pnpm:lint"
+      "pre-commit": "pretty-quick --staged && concurrently -n npm:test npm:lint"
     }
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/single-spa/single-spa-vue.git"
+    "url": "git+https://github.com/web-widget/vue-adapter.git"
   },
   "files": [
-    "dist",
-    "types"
+    "dist"
   ],
-  "types": "types/single-spa-vue.d.ts",
   "keywords": [
-    "single-spa",
+    "web-widget",
     "vue",
     "single",
     "page",
     "app",
     "spa"
   ],
-  "author": "single-spa core team",
+  "author": "web-widget core team",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/single-spa/single-spa-vue/issues"
+    "url": "https://github.com/web-widget/vue-adapter/issues"
   },
-  "homepage": "https://github.com/single-spa/single-spa-vue#readme",
+  "homepage": "https://github.com/web-widget/vue-adapter#readme",
   "devDependencies": {
+    "@babel/eslint-parser": "^7.16.0",
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
     "@rollup/plugin-babel": "^5.3.0",
     "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
-    "@types/jest": "^26.0.15",
     "@vue/test-utils": "^1.1.1",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.1.0",
@@ -72,27 +73,20 @@
     "concurrently": "^5.3.0",
     "cross-env": "^7.0.2",
     "css.escape": "^1.5.1",
-    "eslint": "^7.11.0",
-    "eslint-config-important-stuff": "^1.1.0",
-    "eslint-config-prettier": "^6.14.0",
-    "eslint-plugin-prettier": "^3.1.4",
+    "eslint": "^7.2.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-config-airbnb-base": "^14.2.1",
+    "eslint-plugin-import": "^2.25.2",
+    "eslint-plugin-prettier": "^4.0.0",
+    "prettier": "^2.4.1",
     "husky": "^4.3.0",
     "jest": "^26.6.1",
-    "prettier": "^2.1.2",
     "pretty-quick": "^3.1.0",
     "rimraf": "^3.0.2",
     "rollup": "^2.32.1",
     "rollup-plugin-terser": "^7.0.2",
-    "single-spa": "^5.8.2",
-    "tsd": "^0.13.1",
+    "@web-widget/container": "^0.0.8",
     "vue": "^2.6.12",
     "vue-template-compiler": "^2.6.12"
-  },
-  "tsd": {
-    "compilerOptions": {
-      "lib": [
-        "dom"
-      ]
-    }
   }
 }
