@@ -1,4 +1,4 @@
-/* global document, HTMLElement, CSS */
+/* global document, HTMLElement, ShadowRoot */
 
 const defaultOptions = {
   // required options
@@ -24,55 +24,52 @@ async function resolveVueOptions(options, props) {
   return { ...options.vueOptions };
 }
 
-async function mount(options, mountedInstances, props) {
-  const instance = {};
+async function mount(options, instance, props) {
   const vueOptions = await resolveVueOptions(options, props);
   const rootNode = props.container.getRootNode();
+  const inShadowDOM = rootNode instanceof ShadowRoot;
+  const oldStyleNodes = [...rootNode.querySelectorAll('style')];
+  const mounted = () => {
+    const newStyleNodes = [...rootNode.querySelectorAll('style')];
+    instance.styleNodes = newStyleNodes.filter(
+      node => !oldStyleNodes.includes(node)
+    );
+
+    return instance.vueInstance;
+  };
 
   if (!vueOptions.el) {
-    vueOptions.el = props.container;
+    vueOptions.el = document.createElement('div');
   }
 
-  let domEl;
+  if (inShadowDOM && !vueOptions.shadowRoot) {
+    vueOptions.shadowRoot = props.container;
+  }
+
+  let vueRrenderRoot = vueOptions.el;
   if (typeof vueOptions.el === 'string') {
-    domEl = rootNode.querySelector(vueOptions.el);
-    if (!domEl) {
+    vueRrenderRoot =
+      rootNode.querySelector(vueOptions.el) ||
+      document.querySelector(vueOptions.el);
+    if (!vueRrenderRoot) {
       throw Error(
         `If vueOptions.el is provided to vue-adapter, the dom element must exist in the dom. Was provided as ${vueOptions.el}`
       );
     }
-  } else {
-    domEl = vueOptions.el;
-    if (!domEl.id) {
-      domEl.id = `web-widget-application:${props.name}`;
-    }
-    vueOptions.el = `#${CSS.escape(domEl.id)}`;
   }
 
-  if (!options.replaceMode) {
-    vueOptions.el += ' .web-widget-vue-container';
-  }
-
-  // single-spa-vue@>=2 always REPLACES the `el` instead of appending to it.
-  // We want domEl to stick around and not be replaced. So we tell Vue to mount
-  // into a container div inside of the main domEl
-  if (!domEl.querySelector('.web-widget-vue-container')) {
-    const singleSpaContainer = document.createElement('div');
-    singleSpaContainer.className = 'web-widget-vue-container';
-    domEl.appendChild(singleSpaContainer);
-  }
-
-  instance.domEl = domEl;
+  props.container.appendChild(vueRrenderRoot);
+  instance.vueRrenderRoot = vueRrenderRoot;
 
   if (!vueOptions.render && !vueOptions.template && options.rootComponent) {
     vueOptions.render = h => h(options.rootComponent);
   }
 
   if (!vueOptions.data) {
-    vueOptions.data = props.data;
+    vueOptions.data = {};
   }
 
-  vueOptions.data = () => ({ ...vueOptions.data, ...props });
+  vueOptions.data = () => ({ ...vueOptions.data, ...props.data });
 
   if (options.createApp) {
     instance.vueInstance = options.createApp(vueOptions);
@@ -82,9 +79,7 @@ async function mount(options, mountedInstances, props) {
       );
 
       instance.root = instance.vueInstance.mount(vueOptions.el);
-      mountedInstances[props.name] = instance;
-
-      return instance.vueInstance;
+      return mounted();
     }
     instance.root = instance.vueInstance.mount(vueOptions.el);
   } else {
@@ -94,21 +89,17 @@ async function mount(options, mountedInstances, props) {
     }
     if (options.handleInstance) {
       await options.handleInstance(instance.vueInstance, props);
-      mountedInstances[props.name] = instance;
-      return instance.vueInstance;
+      return mounted();
     }
   }
 
-  mountedInstances[props.name] = instance;
-
-  return instance.vueInstance;
+  return mounted();
 }
 
-async function update(options, mountedInstances, props) {
-  const instance = mountedInstances[props.name];
+async function update(options, instance, props) {
   const data = {
     ...(options.vueOptions.data || {}),
-    ...props
+    ...props.data
   };
   const root = instance.root || instance.vueInstance;
   for (const prop in data) {
@@ -116,20 +107,29 @@ async function update(options, mountedInstances, props) {
   }
 }
 
-async function unmount(options, mountedInstances, props) {
-  const instance = mountedInstances[props.name];
+async function unmount(options, instance) {
   if (options.createApp) {
-    instance.vueInstance.unmount(instance.domEl);
+    instance.vueInstance.unmount(instance.vueRrenderRoot);
   } else {
     instance.vueInstance.$destroy();
-    instance.vueInstance.$el.innerHTML = '';
   }
-  delete instance.vueInstance;
 
-  if (instance.domEl) {
-    instance.domEl.innerHTML = '';
-    delete instance.domEl;
+  if (instance.vueInstance.$el) {
+    instance.vueInstance.$el.innerHTML = '';
+    if (instance.vueInstance.$el.parentNode) {
+      instance.vueInstance.$el.parentNode.removeChild(instance.vueInstance.$el);
+    }
   }
+
+  instance.styleNodes.forEach(node => {
+    node.parentNode.removeChild(node);
+  });
+
+  instance.vueRrenderRoot.innerHTML = '';
+
+  delete instance.vueInstance;
+  delete instance.vueRrenderRoot;
+  delete instance.styleNodes;
 }
 
 export default function createAdapter(userOptions) {
@@ -164,14 +164,13 @@ export default function createAdapter(userOptions) {
   options.createApp =
     options.createApp || (options.Vue && options.Vue.createApp);
 
-  // Just a shared object to store the mounted object state
-  // key - name of single-spa app, since it is unique
-  const mountedInstances = {};
-
-  return () => ({
-    bootstrap: bootstrap.bind(null, options, mountedInstances),
-    mount: mount.bind(null, options, mountedInstances),
-    unmount: unmount.bind(null, options, mountedInstances),
-    update: update.bind(null, options, mountedInstances)
-  });
+  return () => {
+    const instance = {};
+    return {
+      bootstrap: bootstrap.bind(null, options, instance),
+      mount: mount.bind(null, options, instance),
+      unmount: unmount.bind(null, options, instance),
+      update: update.bind(null, options, instance)
+    };
+  };
 }

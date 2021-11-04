@@ -1,9 +1,8 @@
-/* global window, document, describe, beforeEach, afterEach, expect, jest, it, CSS, fail, setTimeout */
+/* global window, document, describe, beforeEach, expect, jest, it, CSS, fail, setTimeout */
 
 import createAdapter from '../src/index';
 
-const domElId = `web-widget-application:test-app`;
-const cssSelector = `#web-widget-application\\:test-app`;
+let index = 0;
 
 if (typeof CSS === 'undefined') {
   window.CSS = {
@@ -20,8 +19,9 @@ function createSingleLifecycles() {
 describe('web-widget-vue-adapter', () => {
   let Vue, $destroy;
 
-  const createProps = () => {
+  const createProps = id => {
     const container = document.createElement('div');
+    container.id = id || `id${index++}`;
     document.body.appendChild(container);
     return {
       name: 'test-app',
@@ -38,12 +38,6 @@ describe('web-widget-vue-adapter', () => {
     });
 
     $destroy = jest.fn();
-  });
-
-  afterEach(() => {
-    document.querySelectorAll(cssSelector).forEach(node => {
-      node.remove();
-    });
   });
 
   it(`calls new Vue() during mount and mountedInstances.instance.$destroy() on unmount`, () => {
@@ -76,19 +70,20 @@ describe('web-widget-vue-adapter', () => {
   });
 
   it(`creates a dom element container for you if you don't provide one`, () => {
-    const props = createProps();
+    const domElId = `id${index++}`;
+    const props = createProps(domElId);
     const lifecycles = createSingleLifecycles({
       Vue,
       vueOptions: {}
     });
 
-    expect(document.getElementById(domElId)).toBe(null);
-
     return lifecycles
       .bootstrap(props)
       .then(() => lifecycles.mount(props))
       .then(() => {
-        expect(document.getElementById(domElId)).toBeTruthy();
+        expect(
+          document.getElementById(domElId).querySelector('*')
+        ).toBeTruthy();
       });
   });
 
@@ -99,27 +94,24 @@ describe('web-widget-vue-adapter', () => {
       })
     );
 
-    const props = createProps();
+    const domElId = `id${index++}`;
+    const props = createProps(domElId);
     const lifecycles = createSingleLifecycles({
       Vue,
       vueOptions: {
-        el: '#my-custom-el'
+        el: `#my-custom-el`
       }
     });
 
-    expect(
-      document.querySelector(`#my-custom-el .web-widget-vue-container`)
-    ).toBe(null);
+    expect(document.querySelector(`#${domElId} *`)).toBe(null);
 
     return lifecycles
       .bootstrap(props)
       .then(() => lifecycles.mount(props))
       .then(() => {
-        expect(
-          document.querySelector(`#my-custom-el .web-widget-vue-container`)
-        ).toBeTruthy();
+        expect(document.querySelector(`#${domElId} *`)).toBeTruthy();
 
-        document.querySelector('#my-custom-el').remove();
+        document.querySelector(`#${domElId}`).remove();
       });
   });
 
@@ -130,7 +122,8 @@ describe('web-widget-vue-adapter', () => {
 
     document.body.appendChild(domEl);
 
-    const props = createProps();
+    const domElId = `id${index++}`;
+    const props = createProps(domElId);
     const lifecycles = createSingleLifecycles({
       Vue,
       vueOptions: {
@@ -138,26 +131,25 @@ describe('web-widget-vue-adapter', () => {
       }
     });
 
-    expect(
-      document.querySelector(`#my-custom-el-2 .web-widget-vue-container`)
-    ).toBe(null);
+    props.data = {
+      name: 'test-app'
+    };
+
+    expect(document.querySelector(`#${domElId} #my-custom-el-2`)).toBe(null);
 
     return lifecycles
       .bootstrap(props)
       .then(() => lifecycles.mount(props))
       .then(() => {
         expect(Vue).toHaveBeenCalled();
-        expect(Vue.mock.calls[0][0].el).toBe(
-          '#my-custom-el-2 .web-widget-vue-container'
-        );
-        // ------
-        // expect(Vue.mock.calls[0][0].data()).toEqual({
-        //   name: 'test-app'
-        // });
+        expect(Vue.mock.calls[0][0].el.nodeName).toBe(`DIV`);
+        expect(Vue.mock.calls[0][0].data()).toEqual({
+          name: 'test-app'
+        });
       })
       .then(() => {
         expect(
-          document.querySelector(`#my-custom-el-2 .web-widget-vue-container`)
+          document.querySelector(`#${domElId} #my-custom-el-2`)
         ).toBeTruthy();
         domEl.remove();
       });
@@ -168,7 +160,8 @@ describe('web-widget-vue-adapter', () => {
 
     document.body.appendChild(domEl);
 
-    const props = createProps();
+    const domElId = `id${index++}`;
+    const props = createProps(domElId);
     const lifecycles = createSingleLifecycles({
       Vue,
       vueOptions: {
@@ -176,24 +169,21 @@ describe('web-widget-vue-adapter', () => {
       }
     });
 
-    const htmlId = CSS.escape('web-widget-application:test-app');
+    props.data = {
+      name: 'test-app'
+    };
 
     return lifecycles
       .bootstrap(props)
       .then(() => lifecycles.mount(props))
       .then(() => {
-        expect(Vue.mock.calls[0][0].el).toBe(
-          `#${htmlId} .web-widget-vue-container`
-        );
-        //--------
-        // expect(Vue.mock.calls[0][0].data()).toEqual({
-        //   name: 'test-app'
-        // });
+        expect(Vue.mock.calls[0][0].el.nodeName).toBe('DIV');
+        expect(Vue.mock.calls[0][0].data()).toEqual({
+          name: 'test-app'
+        });
       })
       .then(() => {
-        expect(
-          document.querySelector(`#${htmlId} .web-widget-vue-container`)
-        ).toBeTruthy();
+        expect(document.querySelector(`#${domElId} *`)).toBeTruthy();
         domEl.remove();
       });
   });
@@ -211,7 +201,8 @@ describe('web-widget-vue-adapter', () => {
   });
 
   it(`throws an error if vueOptions.el doesn't exist in the dom`, () => {
-    const props = createProps();
+    const domElId = `id${index++}`;
+    const props = createProps(domElId);
     const lifecycles = createSingleLifecycles({
       Vue,
       vueOptions: {
@@ -231,13 +222,14 @@ describe('web-widget-vue-adapter', () => {
   });
 
   it(`reuses the default dom element container on the second mount`, () => {
-    const props = createProps();
+    const domElId = `id${index++}`;
+    const props = createProps(domElId);
     const lifecycles = createSingleLifecycles({
       Vue,
       vueOptions: {}
     });
 
-    expect(document.querySelectorAll(cssSelector).length).toBe(0);
+    expect(document.querySelectorAll(`#${domElId} *`).length).toBe(0);
 
     let firstEl;
 
@@ -245,17 +237,17 @@ describe('web-widget-vue-adapter', () => {
       .bootstrap(props)
       .then(() => lifecycles.mount(props))
       .then(() => {
-        expect(document.querySelectorAll(cssSelector).length).toBe(1);
+        expect(document.querySelectorAll(`#${domElId} > *`).length).toBe(1);
         firstEl = Vue.mock.calls[0].el;
         return lifecycles.unmount(props);
       })
       .then(() => {
-        expect(document.querySelectorAll(cssSelector).length).toBe(1);
+        expect(document.querySelectorAll(`#${domElId} > *`).length).toBe(1);
         Vue.mockReset();
         return lifecycles.mount(props);
       })
       .then(() => {
-        expect(document.querySelectorAll(cssSelector).length).toBe(1);
+        expect(document.querySelectorAll(`#${domElId} > *`).length).toBe(2);
         const secondEl = Vue.mock.calls[0].el;
         expect(firstEl).toBe(secondEl);
       });
@@ -369,12 +361,16 @@ describe('web-widget-vue-adapter', () => {
 
   it(`adds the web-widget props as data to the root component`, () => {
     const props = createProps();
-    props.someCustomThing = 'hi';
 
     const lifecycles = createSingleLifecycles({
       Vue,
       vueOptions: {}
     });
+
+    props.data = {
+      someCustomThing: 'hi',
+      name: 'test-app'
+    };
 
     return lifecycles
       .bootstrap(props)
@@ -389,7 +385,8 @@ describe('web-widget-vue-adapter', () => {
   });
 
   it(`mounts into the web-widget-vue-container div if you don't provide an 'el' in vueOptions`, () => {
-    const props = createProps();
+    const domElId = `id${index++}`;
+    const props = createProps(domElId);
     const lifecycles = createSingleLifecycles({
       Vue,
       vueOptions: {}
@@ -400,9 +397,7 @@ describe('web-widget-vue-adapter', () => {
       .then(() => lifecycles.mount(props))
       .then(() => {
         expect(Vue).toHaveBeenCalled();
-        expect(Vue.mock.calls[0][0].el).toBe(
-          `${cssSelector} .web-widget-vue-container`
-        );
+        expect(Vue.mock.calls[0][0].el.nodeName).toBe('DIV');
         return lifecycles.unmount(props);
       });
   });
@@ -422,50 +417,6 @@ describe('web-widget-vue-adapter', () => {
         })
       )
       .then(() => lifecycles.unmount(props));
-  });
-
-  it(`mounts 2 instances and then unmounts them`, () => {
-    const props = createProps();
-    const lifecycles = createSingleLifecycles({
-      Vue,
-      vueOptions: {}
-    });
-
-    const obj1 = {
-      props,
-      spy: null
-    };
-    const obj2 = {
-      props: { name: 'test-app-2', container: document.createElement('div') },
-      spy: null
-    };
-
-    function mount(obj) {
-      return lifecycles.mount(obj.props).then(instance => {
-        expect(instance instanceof Vue).toBeTruthy();
-
-        // since $destroy is always pointing to the same function (as it is defined it beforeEach()),
-        // it is needed to be overwritten
-        const oldDestroy = instance.$destroy;
-        instance.$destroy = (...args) => oldDestroy.apply(instance, args);
-
-        obj.spy = jest.spyOn(instance, '$destroy');
-      });
-    }
-
-    function unmount(obj) {
-      expect(obj.spy).not.toBeCalled();
-      return lifecycles.unmount(obj.props).then(() => {
-        expect(obj.spy).toBeCalled();
-      });
-    }
-
-    return lifecycles
-      .bootstrap(props)
-      .then(() => mount(obj1))
-      .then(() => mount(obj2))
-      .then(() => unmount(obj1))
-      .then(() => unmount(obj2));
   });
 
   it(`works with Vue 3 when you provide the full Vue module as an opt`, async () => {
@@ -618,38 +569,13 @@ describe('web-widget-vue-adapter', () => {
     await lifecycles.unmount(props);
   });
 
-  it(`mounts a Vue instance in specified element, if replaceMode is true`, () => {
+  it(`mounts a Vue instance with ' *' if replaceMode is false or not provided`, () => {
     const domEl = document.createElement('div');
-    const htmlId = CSS.escape('web-widget-application:test-app');
 
     document.body.appendChild(domEl);
 
-    const props = createProps();
-    const lifecycles = createSingleLifecycles({
-      Vue,
-      vueOptions: {
-        el: domEl
-      },
-      replaceMode: true
-    });
-
-    return lifecycles
-      .bootstrap(props)
-      .then(() => lifecycles.mount(props))
-      .then(() => expect(Vue.mock.calls[0][0].el).toBe(`#${htmlId}`))
-      .then(() => {
-        expect(document.querySelector(`#${htmlId}`)).toBeTruthy();
-        domEl.remove();
-      });
-  });
-
-  it(`mounts a Vue instance with ' .web-widget-vue-container' if replaceMode is false or not provided`, () => {
-    const domEl = document.createElement('div');
-    const htmlId = CSS.escape('web-widget-application:test-app');
-
-    document.body.appendChild(domEl);
-
-    const props = createProps();
+    const domElId = `id${index++}`;
+    const props = createProps(domElId);
     const lifecycles = createSingleLifecycles({
       Vue,
       vueOptions: {
@@ -660,15 +586,9 @@ describe('web-widget-vue-adapter', () => {
     return lifecycles
       .bootstrap(props)
       .then(() => lifecycles.mount(props))
-      .then(() =>
-        expect(Vue.mock.calls[0][0].el).toBe(
-          `#${htmlId} .web-widget-vue-container`
-        )
-      )
+      .then(() => expect(Vue.mock.calls[0][0].el.nodeName).toBe('DIV'))
       .then(() => {
-        expect(
-          document.querySelector(`#${htmlId} .web-widget-vue-container`)
-        ).toBeTruthy();
+        expect(document.querySelector(`#${domElId} *`)).toBeTruthy();
         domEl.remove();
       });
   });

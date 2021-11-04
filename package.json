@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vue-adapter",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "a web-widget plugin for vue.js applications",
   "source": "src/index.js",
   "main": "dist/cjs/vue-adapter.js",
