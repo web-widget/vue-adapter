@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/vue-adapter",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "a web-widget plugin for vue.js applications",
   "source": "src/index.js",
   "main": "dist/cjs/vue-adapter.js",
@@ -63,8 +63,6 @@
     "@babel/eslint-parser": "^7.16.0",
     "@babel/core": "^7.12.3",
     "@babel/preset-env": "^7.12.1",
-    "@rollup/plugin-babel": "^5.3.0",
-    "@rollup/plugin-commonjs": "^15.1.0",
     "@rollup/plugin-node-resolve": "^9.0.0",
     "@vue/test-utils": "^1.1.1",
     "babel-core": "7.0.0-bridge.0",
