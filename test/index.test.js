@@ -5,6 +5,14 @@ import createAdapter from '../src/index';
 const domElId = `web-widget-application:test-app`;
 const cssSelector = `#web-widget-application\\:test-app`;
 
+if (typeof CSS === 'undefined') {
+  window.CSS = {
+    escape(content) {
+      return content.replace(/([^\w-])/g, '\\$1');
+    }
+  };
+}
+
 function createSingleLifecycles() {
   return createAdapter(...arguments)();
 }

@@ -1,7 +1,5 @@
 /* global document, HTMLElement, CSS */
 
-import 'css.escape';
-
 const defaultOptions = {
   // required options
   vueOptions: null,
