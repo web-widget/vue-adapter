@@ -1,22 +1,22 @@
-# vue-adapter
+# web-widget-vue
 
 Generic lifecycle hooks for Vue.js applications that are registered as [applications](https://web-widget.js.org/docs/application/overview/) of [web-widget](https://github.com/web-widget/web-widget).
 
 ## Installation
 
-The [vue-adapter](https://github.com/web-widget/vue-adapter) will get everything set up.
+The [web-widget-vue](https://github.com/web-widget/web-widget-vue) will get everything set up.
 
 ```sh
-npm install --save @web-widget/vue-adapter
+npm install --save @web-widget/web-widget-vue
 ```
 
-Alternatively, you can use @web-widget/vue-adapter by adding `<script src="https://unpkg.com/@web-widget/vue-adapter"></script>` to your HTML file and
+Alternatively, you can use @web-widget/web-widget-vue by adding `<script src="https://unpkg.com/@web-widget/web-widget-vue"></script>` to your HTML file and
 accessing the `WebWidgetVueAdapter` global variable.
 
 ## Usage
 
 ```js
-import { createAdapter } from '@web-widget/vue-adapter';
+import { createAdapter } from '@web-widget/web-widget-vue';
 
 export default createAdapter({...});
 ```
@@ -29,7 +29,7 @@ For Vue 2, change your application's entry file to be the following:
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
-import { createAdapter } from '@web-widget/vue-adapter';
+import { createAdapter } from '@web-widget/web-widget-vue';
 
 export default createAdapter({
   Vue,
@@ -50,7 +50,7 @@ For Vue 3, change your application's entry file to be the following:
 import { h, createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-import { createAdapter } from '@web-widget/vue-adapter';
+import { createAdapter } from '@web-widget/web-widget-vue';
 
 export default createAdapter({
   createApp,
@@ -69,12 +69,12 @@ export default createAdapter({
 
 ## Options
 
-All options are passed to vue-adapter via the `opts` parameter when calling `createAdapter(opts)`. The following options are available:
+All options are passed to web-widget-vue via the `opts` parameter when calling `createAdapter(opts)`. The following options are available:
 
 - `Vue`: (required) The main Vue object, which is generally either exposed onto the window or is available via `require('vue')` `import Vue from 'vue'`.
 - `vueOptions`: (required) An object or async function which will be used to instantiate your Vue.js application. `vueOptions` will pass directly through to `new Vue(vueOptions)`. Note that if you do not provide an `el` to vueOptions, that a div will be created and appended to the DOM as a default container for your Vue application. When `vueOptions` is an async function, it receives the Web Widget application props as an argument.
 - `loadRootComponent`: (optional and replaces `vueOptions.render`) A promise that resolves with your root component. This is useful for lazy loading.
-- `handleInstance`: (optional) A method can be used to handle Vue instance. Vue 3 brings [new instance API](https://v3.vuejs.org/guide/migration/global-api.html#a-new-global-api-createapp), and you can access *the app instance* from this, like `handleInstance: (app, props) => app.use(router)`. For Vue 2 users, a [Vue instance](https://vuejs.org/v2/guide/instance.html) can be accessed. The `handleInstance(app, props)` function receives the instance as its first argument, and Web Widget application props as its second argument. If handleInstance returns a promise, vue-adapter will wait to resolve the app / parcel's `mount` lifecycle until the handleInstance promise resolves.
+- `handleInstance`: (optional) A method can be used to handle Vue instance. Vue 3 brings [new instance API](https://v3.vuejs.org/guide/migration/global-api.html#a-new-global-api-createapp), and you can access *the app instance* from this, like `handleInstance: (app, props) => app.use(router)`. For Vue 2 users, a [Vue instance](https://vuejs.org/v2/guide/instance.html) can be accessed. The `handleInstance(app, props)` function receives the instance as its first argument, and Web Widget application props as its second argument. If handleInstance returns a promise, web-widget-vue will wait to resolve the app / parcel's `mount` lifecycle until the handleInstance promise resolves.
 
 To configure which dom element the Web Widget application is mounted to, use [vueOptions.el](https://vuejs.org/v2/api/#el):
 

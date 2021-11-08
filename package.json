@@ -1,12 +1,12 @@
 {
-  "name": "@web-widget/vue-adapter",
+  "name": "@web-widget/web-widget-vue",
   "version": "0.0.5",
   "description": "a web-widget plugin for vue.js applications",
   "source": "src/index.js",
-  "main": "dist/cjs/vue-adapter.js",
-  "module": "dist/esm/vue-adapter.js",
-  "system": "dist/system/vue-adapter.js",
-  "unpkg": "dist/umd/vue-adapter.js",
+  "main": "dist/cjs/web-widget-vue.js",
+  "module": "dist/esm/web-widget-vue.js",
+  "system": "dist/system/web-widget-vue.js",
+  "unpkg": "dist/umd/web-widget-vue.js",
   "libraryName": "WebWidgetVueAdapter",
 
   "publishConfig": {
@@ -14,8 +14,8 @@
   },
   "exports": {
     ".": {
-      "import": "./dist/esm/vue-adapter.js",
-      "require": "./dist/umd/vue-adapter.js"
+      "import": "./dist/esm/web-widget-vue.js",
+      "require": "./dist/umd/web-widget-vue.js"
     }
   },
   "scripts": {
@@ -40,7 +40,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/web-widget/vue-adapter.git"
+    "url": "git+https://github.com/web-widget/web-widget-vue.git"
   },
   "files": [
     "dist"
@@ -56,9 +56,9 @@
   "author": "web-widget core team",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/web-widget/vue-adapter/issues"
+    "url": "https://github.com/web-widget/web-widget-vue/issues"
   },
-  "homepage": "https://github.com/web-widget/vue-adapter#readme",
+  "homepage": "https://github.com/web-widget/web-widget-vue#readme",
   "devDependencies": {
     "@babel/eslint-parser": "^7.16.0",
     "@babel/core": "^7.12.3",

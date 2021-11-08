@@ -16,7 +16,7 @@ function createSingleLifecycles() {
   return createAdapter(...arguments)();
 }
 
-describe('web-widget-vue-adapter', () => {
+describe('web-widget-web-widget-vue', () => {
   let Vue, $destroy;
 
   const createProps = id => {

@@ -53,7 +53,7 @@ async function mount(options, instance, props) {
       document.querySelector(vueOptions.el);
     if (!vueRrenderRoot) {
       throw Error(
-        `If vueOptions.el is provided to vue-adapter, the dom element must exist in the dom. Was provided as ${vueOptions.el}`
+        `If vueOptions.el is provided to web-widget-vue, the dom element must exist in the dom. Was provided as ${vueOptions.el}`
       );
     }
   }
