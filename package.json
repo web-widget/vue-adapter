@@ -1,6 +1,6 @@
 {
   "name": "@web-widget/web-widget-vue",
-  "version": "0.0.1-beta",
+  "version": "0.0.1-beta2.0",
   "description": "a web-widget plugin for vue.js applications",
   "source": "src/index.js",
   "main": "dist/cjs/web-widget-vue.js",
@@ -43,6 +43,7 @@
     "url": "git+https://github.com/web-widget/web-widget-vue.git"
   },
   "files": [
+    "src",
     "dist"
   ],
   "keywords": [

@@ -42,8 +42,22 @@ async function mount(options, instance, props) {
     vueOptions.el = document.createElement('div');
   }
 
+  if (!vueOptions.data) {
+    vueOptions.data = () => ({ ...vueOptions.data, ...props.data });
+  }
+
   if (inShadowDOM && !vueOptions.shadowRoot) {
     vueOptions.shadowRoot = props.container;
+  }
+
+  if (options.styles) {
+    const documentFragment = document.createDocumentFragment();
+    options.styles.forEach(style => {
+      const styleNode = document.createElement('style');
+      styleNode.textContent = style;
+      documentFragment.appendChild(styleNode);
+    });
+    props.container.appendChild(documentFragment);
   }
 
   let vueRrenderRoot = vueOptions.el;
@@ -64,12 +78,6 @@ async function mount(options, instance, props) {
   if (!vueOptions.render && !vueOptions.template && options.rootComponent) {
     vueOptions.render = h => h(options.rootComponent);
   }
-
-  if (!vueOptions.data) {
-    vueOptions.data = {};
-  }
-
-  vueOptions.data = () => ({ ...vueOptions.data, ...props.data });
 
   if (options.createApp) {
     instance.vueInstance = options.createApp(vueOptions);
@@ -114,18 +122,19 @@ async function unmount(options, instance) {
     instance.vueInstance.$destroy();
   }
 
-  if (instance.vueInstance.$el) {
-    instance.vueInstance.$el.innerHTML = '';
-    if (instance.vueInstance.$el.parentNode) {
-      instance.vueInstance.$el.parentNode.removeChild(instance.vueInstance.$el);
-    }
-  }
+  [...new Set([instance.vueRrenderRoot, instance.vueInstance.$el])]
+    .filter(node => node)
+    .forEach(node => {
+      if (node.parentNode) {
+        node.parentNode.removeChild(node);
+      } else {
+        node.innerHTML = '';
+      }
+    });
 
   instance.styleNodes.forEach(node => {
     node.parentNode.removeChild(node);
   });
-
-  instance.vueRrenderRoot.innerHTML = '';
 
   delete instance.vueInstance;
   delete instance.vueRrenderRoot;

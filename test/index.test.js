@@ -242,12 +242,12 @@ describe('web-widget-web-widget-vue', () => {
         return lifecycles.unmount(props);
       })
       .then(() => {
-        expect(document.querySelectorAll(`#${domElId} > *`).length).toBe(1);
+        expect(document.querySelectorAll(`#${domElId} > *`).length).toBe(0);
         Vue.mockReset();
         return lifecycles.mount(props);
       })
       .then(() => {
-        expect(document.querySelectorAll(`#${domElId} > *`).length).toBe(2);
+        expect(document.querySelectorAll(`#${domElId} > *`).length).toBe(1);
         const secondEl = Vue.mock.calls[0].el;
         expect(firstEl).toBe(secondEl);
       });

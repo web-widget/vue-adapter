@@ -16,7 +16,7 @@ accessing the `WebWidgetVueAdapter` global variable.
 ## Usage
 
 ```js
-import { createAdapter } from '@web-widget/web-widget-vue';
+import createAdapter from '@web-widget/web-widget-vue';
 
 export default createAdapter({...});
 ```
@@ -29,7 +29,7 @@ For Vue 2, change your application's entry file to be the following:
 import Vue from 'vue';
 import App from './App.vue';
 import router from './router';
-import { createAdapter } from '@web-widget/web-widget-vue';
+import createAdapter from '@web-widget/web-widget-vue';
 
 export default createAdapter({
   Vue,
@@ -50,7 +50,7 @@ For Vue 3, change your application's entry file to be the following:
 import { h, createApp } from 'vue';
 import App from './App.vue';
 import router from './router';
-import { createAdapter } from '@web-widget/web-widget-vue';
+import createAdapter from '@web-widget/web-widget-vue';
 
 export default createAdapter({
   createApp,
